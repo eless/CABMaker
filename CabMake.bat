@@ -1,3 +1,4 @@
+:: (c)Aleksandr Solovei
   @echo off
 
 ::set drive1=E:

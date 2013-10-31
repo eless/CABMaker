@@ -1,3 +1,4 @@
+:: (c)Aleksandr Solovei
 @echo off
 
 del /s/q %source1%\EMI_WM.exe

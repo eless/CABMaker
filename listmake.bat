@@ -1,3 +1,4 @@
+:: (c)Aleksandr Solovei
 @echo off
 
 ::Переносим EMI_WM.exe
