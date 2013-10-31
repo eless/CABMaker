@@ -1,0 +1,112 @@
+
+[SOURCE FILE] - секция описывает созданный каб. Почему-то не работает
+Name=EMI MTKD.cab
+Path=E:\git\EMI MTKD.cab
+AllowUninstall=TRUE
+
+[Version] - Драйверный заголовок
+Signature="$Chicago$" - сигнатура системы ($CHICAGO$/$WINDOWS NT$)
+CESignature="$Windows CE$"
+Provider="EMI" - Папка, в которую ложится после установки. Имеется ввиду автор приложения.
+
+[CEStrings]
+AppName="MTKD" - Название приложения
+InstallDir="%CE1%\EMI\MTKD" - место установки. %CE[num]% - одно из сокращений в Windows для системных папок. %CE1%- Program Files
+ 
+[CEDevice] - спецификация устройства, на котором разрешается установка. "0" - любой тип.
+ProcessorType=0
+VersionMin=0.0
+VersionMax=0.0
+BuildMin=0
+BuildMax=0
+
+[SourceDisksNames] - индексация исходных папок. формат строки - [index]=,Source[index],,"[Source_Folder]"
+пример:
+1=,Source1,,"E:\tmp\EMI\[INSTALLDIR]"
+2=,Source2,,"E:\tmp\EMI\[INSTALLDIR]\BATTERY"
+3=,Source3,,"E:\tmp\EMI\[INSTALLDIR]\css"
+и т.д.
+[INSTALLDIR]-корневой уровень сорсов
+...
+34=,Source34,, - возможные внешние пути, у нас их нет
+
+[SourceDisksFiles] - индексация файлов по индексам их папок, пример для папок из пред.примера:
+".gitignore1000"=1
+"EMI_WM.exe1001"=1
+"EXIT.PNG1002"=1
+"IQ_CLAPI_DLL.dll1003"=1
+"ITCAdcDevMgmt.dll1004"=1
+"ITCEventlog.dll1005"=1
+"ITCScan.dll1006"=1
+"log4net.dll1007"=1
+"mk.db1008"=1
+"MSVCR80.DLL1009"=1
+"MSVCR90.DLL1010"=1
+"ScnAPI32.dll1011"=1
+"SSAPI.DLL1012"=1
+"battery_empty.png1013"=2
+"battery_full.png1014"=2
+"battery_half.png1015"=2
+"battery_low.png1016"=2
+"base.css1017"=3
+"style.css1018"=3
+и т.д.
+
+[CopyFiles(индексгруппы=индекс_папки)] - групирование файлов в массивы попапочно и переименование(если необходимо).
+Структура:
+"Имя_файла_на_устройстве",имя_исходного_файла,,0x00000001 - необязательный ключ, кажется "заменять, если присутствует, без запроса"
+Внимание! Основной недостаток cabwiz-а состоит в том, что он не умеет работать с файлами с одинаковыми названиями. В упор не хочет. Выдает ошибку. В инете некоторые умельцы писали, что обходили это, но в результате копировался только первый файл с данным именем вместо всех.
+Я обошел это переименованием файлов перед их учетом - просто описал в конце к расширению индексы (1000,1001,1002 и тд), а в этой секции указываю, что после копирования их надо переименовать, удалив 4 последних символа из полного названия.
+Пример:
+[CopyFiles1]
+".gitignore",.gitignore1000,,0x00000001
+"EMI_WM.exe",EMI_WM.exe1001,,0x00000001
+"EXIT.PNG",EXIT.PNG1002,,0x00000001
+"IQ_CLAPI_DLL.dll",IQ_CLAPI_DLL.dll1003,,0x00000001
+"ITCAdcDevMgmt.dll",ITCAdcDevMgmt.dll1004,,0x00000001
+"ITCEventlog.dll",ITCEventlog.dll1005,,0x00000001
+"ITCScan.dll",ITCScan.dll1006,,0x00000001
+"log4net.dll",log4net.dll1007,,0x00000001
+"mk.db",mk.db1008,,0x00000001
+"MSVCR80.DLL",MSVCR80.DLL1009,,0x00000001
+"MSVCR90.DLL",MSVCR90.DLL1010,,0x00000001
+"ScnAPI32.dll",ScnAPI32.dll1011,,0x00000001
+"SSAPI.DLL",SSAPI.DLL1012,,0x00000001
+
+[CopyFiles2]
+"battery_empty.png",battery_empty.png1013,,0x00000001
+"battery_full.png",battery_full.png1014,,0x00000001
+"battery_half.png",battery_half.png1015,,0x00000001
+"battery_low.png",battery_low.png1016,,0x00000001
+
+[CopyFiles3]
+"base.css",base.css1017,,0x00000001
+"style.css",style.css1018,,0x00000001
+
+и т.д.
+
+[CEShortcuts1] - группа ярлыков. Формат: "Имя для ярлыка-(Название_приложения.lnk),0,Имя файла, который открывает"
+"MTKD.lnk",0,"EMI_WM.exe"
+
+[DestinationDirs] - группа привязки секций [CopyFiles] и [CEShortcuts] к папкам установки:
+CopyFiles1=0,"%InstallDir%"
+CopyFiles2=0,"%InstallDir%\BATTERY"
+CopyFiles3=0,"%InstallDir%\css"
+
+... и т.д.
+
+CEShortcuts1=0,"%CE11%" (%CE11%-Главное Меню)
+
+[AddRegistry] - Добавление записей в реестр
+Используем для указания картинки для ярлыка:
+ветка реестра,Значение_поля,Имя_поля,ключ,адрес файла изображения:
+
+HKLM,"Security\Shell\StartInfo\Start\MTKD.lnk","Icon",0x00000000,"\Program Files\EMI\MTKD\html\icons\36\emi_appicon.png"
+
+0х00000000-ключ,указывает на то, что параметр имеет тип REG_SZ. Данный флаг используется по умолчанию, если никакой другой флаг не указан
+
+[DefaultInstall] - Блок конечных команд на установку. Указывает что куда перемещать, в нашем случае - сгруппированые массивы файлов по-порядку, внесение записи в реестр, создание ярлыков:
+CopyFiles=CopyFiles1,CopyFiles2,CopyFiles3,CopyFiles4,CopyFiles5,CopyFiles6,CopyFiles7,CopyFiles8,CopyFiles9,CopyFiles10,CopyFiles11,CopyFiles12,CopyFiles13,CopyFiles14,CopyFiles15,CopyFiles16,CopyFiles17,CopyFiles18,CopyFiles19,CopyFiles20,CopyFiles21,CopyFiles22,CopyFiles23,CopyFiles24,CopyFiles25,CopyFiles26,CopyFiles27,CopyFiles28,CopyFiles29,CopyFiles30,CopyFiles31,CopyFiles32,CopyFiles33
+AddReg=AddRegistry
+CEShortcuts=CEShortcuts1
+
